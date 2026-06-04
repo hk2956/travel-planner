@@ -5,16 +5,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 class TravelPlanner:
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        self.client = client
 
     def process_request(self, system_prompt: str, user_prompt: str) -> str:
         try:
             full_prompt = f"{system_prompt}\n\n{user_prompt}"
-            response = self.model.generate_content(full_prompt, stream=True)
+            response = self.client.models.generate_content_stream(
+                model="gemini-2.5-flash",
+                contents=full_prompt
+            )
             
             result = st.empty()
             collected_chunks = []
@@ -94,7 +97,7 @@ def main():
     )
 
     st.title("✈️ DeepSeek Travel Assistant 2025810085 김동하")
-    st.markdown("Powered by DeepSeek API (chat model).")
+    st.markdown("Powered by Gemini API.")
 
     system_prompts = get_system_prompts()
     example_prompts = get_example_prompts()
